@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timetable App — Dev Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f0f0;
+  --text2: #888;
+  --text3: #555;
+  --accent: #e8ff47;
+  --accent2: #b8ff00;
+  --rn-blue: #61dafb;
+  --android: #3ddc84;
+  --kotlin: #a97bff;
+  --data: #f0a500;
+  --notif: #ff6b6b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+::selection { background: var(--accent); color: #000; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* NAV */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,10,10,0.9);
+  backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 0.8rem;
+  color: var(--text2);
+  text-decoration: none;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 8rem 4rem 5rem;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 100%, black 40%, transparent 100%);
+}
+
+.hero-accent-circle {
+  position: absolute;
+  top: 15%;
+  right: 8%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  opacity: 0.4;
+}
+
+.hero-accent-circle::after {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.hero-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hero-tag::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 2rem;
+}
+
+.hero-title .line2 {
+  color: var(--text2);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.hero-title .highlight {
+  color: var(--accent);
+  -webkit-text-stroke: 0px;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: var(--text2);
+  font-weight: 300;
+  max-width: 480px;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.meta-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.meta-num span { color: var(--accent); }
+
+.meta-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  right: 4rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  writing-mode: vertical-rl;
+}
+
+/* SECTIONS */
+.section {
+  padding: 6rem 4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 3rem;
+}
+
+/* SCREENS */
+.screens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.screen-card {
+  background: var(--surface);
+  padding: 2rem;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.screen-card:hover { background: var(--surface2); }
+
+.screen-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+
+.screen-card:hover::before { transform: scaleX(1); }
+
+.screen-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.screen-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.screen-features { list-style: none; }
+
+.screen-features li {
+  font-size: 0.825rem;
+  color: var(--text2);
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 0.6rem;
+  line-height: 1.4;
+}
+
+.screen-features li:last-child { border-bottom: none; }
+.screen-features li::before { content: '→'; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 0.7rem; flex-shrink: 0; margin-top: 2px; }
+
+/* STACK */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.stack-card {
+  background: var(--surface);
+  padding: 1.75rem 2rem;
+  transition: background 0.2s;
+}
+
+.stack-card:hover { background: var(--surface2); }
+
+.stack-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.stack-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.stack-name.rn { color: var(--rn-blue); }
+.stack-name.data { color: var(--data); }
+.stack-name.nav { color: var(--android); }
+.stack-name.notif { color: var(--notif); }
+.stack-name.cal { color: var(--kotlin); }
+.stack-name.ide { color: var(--accent); }
+
+.stack-desc {
+  font-size: 0.85rem;
+  color: var(--text2);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+/* ROADMAP */
+.phases { display: flex; flex-direction: column; gap: 0; }
+
+.phase {
+  border: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.phase:last-child { border-bottom: 1px solid var(--border); }
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  cursor: pointer;
+  background: var(--surface);
+  transition: background 0.2s;
+  user-select: none;
+}
+
+.phase-header:hover { background: var(--surface2); }
+
+.phase-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--border2);
+  line-height: 1;
+  min-width: 3rem;
+  transition: color 0.2s;
+}
+
+.phase.open .phase-num { color: var(--accent); }
+
+.phase-info { flex: 1; }
+
+.phase-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.2rem;
+}
+
+.phase-duration {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
+
+.phase-toggle {
+  font-size: 0.8rem;
+  color: var(--text3);
+  transition: transform 0.3s;
+}
+
+.phase.open .phase-toggle { transform: rotate(180deg); }
+
+.phase-body {
+  display: none;
+  padding: 0 2rem 2rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.phase.open .phase-body { display: block; }
+
+.steps-list { display: flex; flex-direction: column; gap: 0; margin-top: 1.5rem; }
+
+.step {
+  border: 1px solid var(--border);
+  border-bottom: none;
+  overflow: hidden;
+}
+
+.step:last-child { border-bottom: 1px solid var(--border); }
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  background: var(--bg);
+  transition: background 0.2s;
+}
+
+.step-header:hover { background: var(--surface); }
+
+.step-icon { font-size: 0.9rem; color: var(--text3); width: 18px; text-align: center; }
+
+.step-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+.step-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
+.badge-rn   { background: rgba(97,218,251,0.12); color: var(--rn-blue); }
+.badge-data { background: rgba(240,165,0,0.12); color: var(--data); }
+.badge-ui   { background: rgba(169,123,255,0.12); color: var(--kotlin); }
+.badge-notif{ background: rgba(255,107,107,0.12); color: var(--notif); }
+.badge-org  { background: rgba(240,240,240,0.08); color: var(--text2); }
+.badge-pub  { background: rgba(232,255,71,0.1); color: var(--accent); }
+
+.step-arrow {
+  font-size: 0.7rem;
+  color: var(--text3);
+  transition: transform 0.2s;
+}
+
+.step.open .step-arrow { transform: rotate(180deg); }
+
+.step-detail {
+  display: none;
+  padding: 0 1.25rem 1.25rem;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.step.open .step-detail { display: block; }
+
+.detail-items { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
+
+.detail-item {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.825rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.detail-item::before {
+  content: '—';
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* INSTALL SECTION */
+.install-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin-bottom: 1px;
+}
+
+.install-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.code-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--accent);
+  line-height: 1.8;
+  overflow-x: auto;
+}
+
+.code-comment { color: var(--text3); }
+.code-cmd { color: var(--text); }
+
+/* TIPS */
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.tip-card {
+  background: var(--surface);
+  padding: 2rem;
+}
+
+.tip-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--border2);
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.tip-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.tip-body {
+  font-size: 0.85rem;
+  color: var(--text2);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* FOOTER */
+.footer {
+  padding: 3rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text3);
+}
+
+.footer-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+
+/* ANIMATIONS */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero { padding: 7rem 1.5rem 4rem; }
+  .section { padding: 4rem 1.5rem; }
+  .scroll-hint { display: none; }
+  .footer { padding: 2rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+  .phase-header { padding: 1.25rem 1.25rem; }
+  .phase-body { padding: 0 1.25rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-logo">TIMETABLE.APP / DEV GUIDE</a>
+  <ul class="nav-links">
+    <li><a href="#screens">Screens</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#tips">Tips</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-accent-circle"></div>
+
+  <div class="hero-tag">First real project — React Native</div>
+
+  <h1 class="hero-title">
+    Build your<br>
+    <span class="line2">own</span>
+    <span class="highlight"> Timetable</span><br>
+    App
+  </h1>
+
+  <p class="hero-desc">
+    A complete developer guide for Mziwonke Mbambo. 5 screens. 6 weeks. One app running live on your iPhone — built by you, used by you every single day.
+  </p>
+
+  <div class="hero-meta">
+    <div class="meta-item">
+      <div class="meta-num">5<span>.</span></div>
+      <div class="meta-label">Screens</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-num">6<span>.</span></div>
+      <div class="meta-label">Weeks</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-num">1<span>.</span></div>
+      <div class="meta-label">Codebase</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-num">∞<span>.</span></div>
+      <div class="meta-label">Learning</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">scroll down</div>
+</section>
+
+<!-- SCREENS -->
+<section id="screens" class="section">
+  <div class="section-eyebrow">What you're building</div>
+  <h2 class="section-title reveal">5 screens.<br>One complete app.</h2>
+
+  <div class="screens-grid reveal">
+    <div class="screen-card">
+      <div class="screen-icon-wrap"><i class="fas fa-th-large"></i></div>
+      <div class="screen-name">Dashboard</div>
+      <ul class="screen-features">
+        <li>Ongoing &amp; upcoming classes</li>
+        <li>Study time reminder strip</li>
+        <li>School &amp; personal events</li>
+        <li>Today at a glance</li>
+      </ul>
+    </div>
+    <div class="screen-card">
+      <div class="screen-icon-wrap"><i class="fas fa-table"></i></div>
+      <div class="screen-name">Timetable</div>
+      <ul class="screen-features">
+        <li>Full weekly grid view</li>
+        <li>Tap slot to see details</li>
+        <li>Add / edit / delete class</li>
+        <li>Colour per subject</li>
+      </ul>
+    </div>
+    <div class="screen-card">
+      <div class="screen-icon-wrap"><i class="fas fa-calendar"></i></div>
+      <div class="screen-name">Calendar</div>
+      <ul class="screen-features">
+        <li>Monthly calendar view</li>
+        <li>School events marked</li>
+        <li>Personal events layer</li>
+        <li>Tap day to see agenda</li>
+      </ul>
+    </div>
+    <div class="screen-card">
+      <div class="screen-icon-wrap"><i class="fas fa-bell"></i></div>
+      <div class="screen-name">Reminders</div>
+      <ul class="screen-features">
+        <li>Study session scheduler</li>
+        <li>Before-class alerts</li>
+        <li>Custom reminder times</li>
+        <li>Toggle per class</li>
+      </ul>
+    </div>
+    <div class="screen-card">
+      <div class="screen-icon-wrap"><i class="fas fa-cog"></i></div>
+      <div class="screen-name">Settings</div>
+      <ul class="screen-features">
+        <li>User name &amp; profile</li>
+        <li>Light / dark theme</li>
+        <li>Semester start date</li>
+        <li>Notification preferences</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section id="stack" class="section">
+  <div class="section-eyebrow">Technology</div>
+  <h2 class="section-title reveal">Your full tech stack.</h2>
+
+  <div class="stack-grid reveal">
+    <div class="stack-card">
+      <div class="stack-type">Framework</div>
+      <div class="stack-name rn">React Native + Expo</div>
+      <div class="stack-desc">One codebase. Runs on your iPhone via Expo Go instantly. No Mac, no Apple developer account needed.</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-type">Storage</div>
+      <div class="stack-name data">AsyncStorage + SQLite</div>
+      <div class="stack-desc">AsyncStorage for settings and preferences. expo-sqlite for all timetable and event data.</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-type">Navigation</div>
+      <div class="stack-name nav">React Navigation</div>
+      <div class="stack-desc">Bottom tab navigator for the 5 screens. Stack navigator inside each tab for sub-pages.</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-type">Notifications</div>
+      <div class="stack-name notif">Expo Notifications</div>
+      <div class="stack-desc">Schedule local push notifications for class reminders and study sessions. Works offline.</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-type">Calendar UI</div>
+      <div class="stack-name cal">react-native-calendars</div>
+      <div class="stack-desc">Ready-made calendar component. Mark events, tap days, monthly view — all built in.</div>
+    </div>
+    <div class="stack-card">
+      <div class="stack-type">IDE</div>
+      <div class="stack-name ide">VS Code</div>
+      <div class="stack-desc">With React Native Tools and Prettier extensions. Expo runs directly in the VS Code terminal.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="section">
+  <div class="section-eyebrow">Build plan</div>
+  <h2 class="section-title reveal">6 weeks.<br>Step by step.</h2>
+
+  <div class="phases reveal">
+
+    <div class="phase" id="phase1">
+      <div class="phase-header" onclick="togglePhase('phase1')">
+        <div class="phase-num">01</div>
+        <div class="phase-info">
+          <div class="phase-title">Setup &amp; skeleton</div>
+          <div class="phase-duration">Week 1 — get everything running</div>
+        </div>
+        <i class="fas fa-chevron-down phase-toggle"></i>
+      </div>
+      <div class="phase-body">
+        <div class="steps-list">
+          <div class="step" id="s1">
+            <div class="step-header" onclick="toggleStep('s1')">
+              <i class="fas fa-download step-icon"></i>
+              <span class="step-name">Install all tools</span>
+              <span class="step-badge badge-org">once only</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Node.js (LTS) from nodejs.org — the engine that runs JavaScript</div>
+                <div class="detail-item">VS Code from code.visualstudio.com — your IDE</div>
+                <div class="detail-item">Expo Go from the App Store on your iPhone</div>
+                <div class="detail-item">VS Code extensions: React Native Tools, Prettier, ES7+ Snippets</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s2">
+            <div class="step-header" onclick="toggleStep('s2')">
+              <i class="fas fa-rocket step-icon"></i>
+              <span class="step-name">Create the Expo project</span>
+              <span class="step-badge badge-rn">React Native</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Open VS Code terminal and run: npx create-expo-app TimetableApp</div>
+                <div class="detail-item">cd TimetableApp then npx expo start</div>
+                <div class="detail-item">Open Expo Go on your iPhone and scan the QR code — your app is live</div>
+                <div class="detail-item">You should see the default Expo welcome screen on your phone</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s3">
+            <div class="step-header" onclick="toggleStep('s3')">
+              <i class="fas fa-folder step-icon"></i>
+              <span class="step-name">Set up folder structure</span>
+              <span class="step-badge badge-org">organisation</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">/screens — one file per screen: Dashboard.js, Timetable.js, Calendar.js, Reminders.js, Settings.js</div>
+                <div class="detail-item">/components — reusable pieces: ClassCard.js, EventBadge.js, ReminderItem.js</div>
+                <div class="detail-item">/data — database setup and query functions</div>
+                <div class="detail-item">/utils — helper functions like formatTime(), getDayName()</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s4">
+            <div class="step-header" onclick="toggleStep('s4')">
+              <i class="fas fa-bars step-icon"></i>
+              <span class="step-name">Build bottom tab navigation</span>
+              <span class="step-badge badge-rn">React Navigation</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Install: npm install @react-navigation/native @react-navigation/bottom-tabs</div>
+                <div class="detail-item">Install required deps: npx expo install react-native-screens react-native-safe-area-context</div>
+                <div class="detail-item">Wire all 5 screens into a bottom tab bar with icons</div>
+                <div class="detail-item">Goal for week 1: tap between all 5 screens, each shows just its name as placeholder text</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase" id="phase2">
+      <div class="phase-header" onclick="togglePhase('phase2')">
+        <div class="phase-num">02</div>
+        <div class="phase-info">
+          <div class="phase-title">Data layer</div>
+          <div class="phase-duration">Week 2 — database and storage</div>
+        </div>
+        <i class="fas fa-chevron-down phase-toggle"></i>
+      </div>
+      <div class="phase-body">
+        <div class="steps-list">
+          <div class="step" id="s5">
+            <div class="step-header" onclick="toggleStep('s5')">
+              <i class="fas fa-database step-icon"></i>
+              <span class="step-name">Set up SQLite database</span>
+              <span class="step-badge badge-data">expo-sqlite</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Install: npx expo install expo-sqlite</div>
+                <div class="detail-item">Create table: Classes (id, subject, day, startTime, endTime, room, colour)</div>
+                <div class="detail-item">Create table: Events (id, title, date, type: school|personal, notes)</div>
+                <div class="detail-item">Create table: StudySessions (id, subject, scheduledTime, duration)</div>
+                <div class="detail-item">Write helper functions: addClass(), getClasses(), deleteClass(), addEvent()</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s6">
+            <div class="step-header" onclick="toggleStep('s6')">
+              <i class="fas fa-sliders-h step-icon"></i>
+              <span class="step-name">AsyncStorage for settings</span>
+              <span class="step-badge badge-data">AsyncStorage</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Install: npx expo install @react-native-async-storage/async-storage</div>
+                <div class="detail-item">Store: userName, theme (light/dark), semesterStartDate, notificationsEnabled</div>
+                <div class="detail-item">Create a useSettings() custom hook to read and write these values cleanly</div>
+                <div class="detail-item">Test by saving a name in Settings and reading it back on the Dashboard</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase" id="phase3">
+      <div class="phase-header" onclick="togglePhase('phase3')">
+        <div class="phase-num">03</div>
+        <div class="phase-info">
+          <div class="phase-title">Build each screen</div>
+          <div class="phase-duration">Weeks 3–5 — the real building</div>
+        </div>
+        <i class="fas fa-chevron-down phase-toggle"></i>
+      </div>
+      <div class="phase-body">
+        <div class="steps-list">
+          <div class="step" id="s7">
+            <div class="step-header" onclick="toggleStep('s7')">
+              <i class="fas fa-table step-icon"></i>
+              <span class="step-name">Timetable screen — build this first</span>
+              <span class="step-badge badge-ui">start here</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Build a weekly grid: columns = Mon–Fri, rows = time slots (8am–8pm)</div>
+                <div class="detail-item">Render a coloured block for each class loaded from the database</div>
+                <div class="detail-item">Add a floating + button that opens an Add Class form (subject, day, time, room, colour)</div>
+                <div class="detail-item">Tap a class block to view details or delete it</div>
+                <div class="detail-item">Build this first — Dashboard and Reminders depend on this data</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s8">
+            <div class="step-header" onclick="toggleStep('s8')">
+              <i class="fas fa-th-large step-icon"></i>
+              <span class="step-name">Dashboard screen</span>
+              <span class="step-badge badge-ui">second</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Greeting card: "Good morning, Mziwonke" — pulls name from AsyncStorage</div>
+                <div class="detail-item">Ongoing class card: checks current time against today's classes</div>
+                <div class="detail-item">Upcoming classes list: next 3 classes today from the timetable data</div>
+                <div class="detail-item">Events strip: today's school and personal events from the Events table</div>
+                <div class="detail-item">Study reminder banner: shows if a study session is scheduled within 1 hour</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s9">
+            <div class="step-header" onclick="toggleStep('s9')">
+              <i class="fas fa-calendar step-icon"></i>
+              <span class="step-name">Calendar screen</span>
+              <span class="step-badge badge-ui">third</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Install: npm install react-native-calendars</div>
+                <div class="detail-item">Mark dates that have events using the markedDates prop</div>
+                <div class="detail-item">Tap a date to show an agenda list below the calendar</div>
+                <div class="detail-item">Add Event button: form with title, date, type (school or personal), notes</div>
+                <div class="detail-item">Use different dot colours for school events vs personal events</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s10">
+            <div class="step-header" onclick="toggleStep('s10')">
+              <i class="fas fa-bell step-icon"></i>
+              <span class="step-name">Reminders screen</span>
+              <span class="step-badge badge-notif">fourth</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Install: npx expo install expo-notifications</div>
+                <div class="detail-item">Request notification permission on first open using Notifications.requestPermissionsAsync()</div>
+                <div class="detail-item">List all classes with a toggle switch to enable/disable reminder for each one</div>
+                <div class="detail-item">Default reminder fires 15 minutes before class starts</div>
+                <div class="detail-item">Add Study Session: pick subject, date, time, duration — schedules a local notification</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s11">
+            <div class="step-header" onclick="toggleStep('s11')">
+              <i class="fas fa-cog step-icon"></i>
+              <span class="step-name">Settings screen</span>
+              <span class="step-badge badge-ui">fifth</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Name input — saved to AsyncStorage, shown in the Dashboard greeting</div>
+                <div class="detail-item">Theme toggle (light/dark) — store preference, apply a ThemeContext app-wide</div>
+                <div class="detail-item">Semester start date picker</div>
+                <div class="detail-item">Notifications global on/off toggle</div>
+                <div class="detail-item">Clear all data button — always show a confirmation alert before deleting</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase" id="phase4">
+      <div class="phase-header" onclick="togglePhase('phase4')">
+        <div class="phase-num">04</div>
+        <div class="phase-info">
+          <div class="phase-title">Polish &amp; ship</div>
+          <div class="phase-duration">Week 6 — finish and publish</div>
+        </div>
+        <i class="fas fa-chevron-down phase-toggle"></i>
+      </div>
+      <div class="phase-body">
+        <div class="steps-list">
+          <div class="step" id="s12">
+            <div class="step-header" onclick="toggleStep('s12')">
+              <i class="fas fa-moon step-icon"></i>
+              <span class="step-name">Dark mode theming</span>
+              <span class="step-badge badge-ui">polish</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Create a ThemeContext using React's Context API</div>
+                <div class="detail-item">Define a lightTheme and darkTheme object with all your app colours</div>
+                <div class="detail-item">Every component reads colours from the theme — no hardcoded hex values</div>
+                <div class="detail-item">Settings toggle flips the context — whole app updates in real time</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s13">
+            <div class="step-header" onclick="toggleStep('s13')">
+              <i class="fas fa-mobile-alt step-icon"></i>
+              <span class="step-name">Test on your iPhone with real data</span>
+              <span class="step-badge badge-org">testing</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Add your actual UKZN timetable — real subjects, real times, real rooms</div>
+                <div class="detail-item">Check every screen on your phone screen size</div>
+                <div class="detail-item">Test that notifications actually fire at the right time</div>
+                <div class="detail-item">Fix any layout issues — safe area insets, keyboard behaviour, scroll views</div>
+              </div>
+            </div>
+          </div>
+          <div class="step" id="s14">
+            <div class="step-header" onclick="toggleStep('s14')">
+              <i class="fab fa-github step-icon"></i>
+              <span class="step-name">Push to GitHub</span>
+              <span class="step-badge badge-pub">publish</span>
+              <i class="fas fa-chevron-down step-arrow"></i>
+            </div>
+            <div class="step-detail">
+              <div class="detail-items">
+                <div class="detail-item">Create a new repo: TimetableApp on your wonkerh GitHub account</div>
+                <div class="detail-item">Add a .gitignore to exclude node_modules</div>
+                <div class="detail-item">Write a README: what the app does, what you learned, tech stack used</div>
+                <div class="detail-item">Add screenshots of your real app running on your iPhone</div>
+                <div class="detail-item">This is Project 02 on your roadmap — done, live, and visible to the world</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SETUP COMMANDS -->
+<section id="setup" class="section">
+  <div class="section-eyebrow">Quick start</div>
+  <h2 class="section-title reveal">Run these commands<br>on day one.</h2>
+
+  <div class="reveal">
+    <div class="install-block">
+      <div class="install-title">1. Create the project</div>
+      <div class="code-block">
+        <span class="code-comment"># Create your app</span><br>
+        <span class="code-cmd">npx create-expo-app TimetableApp</span><br>
+        <span class="code-cmd">cd TimetableApp</span><br><br>
+        <span class="code-comment"># Start the dev server</span><br>
+        <span class="code-cmd">npx expo start</span>
+      </div>
+    </div>
+    <div class="install-block">
+      <div class="install-title">2. Install all dependencies</div>
+      <div class="code-block">
+        <span class="code-comment"># Navigation</span><br>
+        <span class="code-cmd">npm install @react-navigation/native @react-navigation/bottom-tabs</span><br>
+        <span class="code-cmd">npx expo install react-native-screens react-native-safe-area-context</span><br><br>
+        <span class="code-comment"># Storage</span><br>
+        <span class="code-cmd">npx expo install expo-sqlite @react-native-async-storage/async-storage</span><br><br>
+        <span class="code-comment"># Notifications</span><br>
+        <span class="code-cmd">npx expo install expo-notifications</span><br><br>
+        <span class="code-comment"># Calendar UI</span><br>
+        <span class="code-cmd">npm install react-native-calendars</span>
+      </div>
+    </div>
+    <div class="install-block">
+      <div class="install-title">3. Open on your iPhone</div>
+      <div class="code-block">
+        <span class="code-comment"># Make sure Expo Go is installed on your iPhone</span><br>
+        <span class="code-comment"># Run expo start, then scan the QR code in Expo Go</span><br>
+        <span class="code-comment"># Your app loads live — every save in VS Code updates it instantly</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIPS -->
+<section id="tips" class="section">
+  <div class="section-eyebrow">Developer mindset</div>
+  <h2 class="section-title reveal">Things to remember<br>as you build.</h2>
+
+  <div class="tips-grid reveal">
+    <div class="tip-card">
+      <div class="tip-num">01</div>
+      <div class="tip-title">Build Timetable before Dashboard</div>
+      <div class="tip-body">The Dashboard needs real class data to show anything useful. If you build it first you'll stare at an empty screen with nothing to test. Data first, UI second.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">02</div>
+      <div class="tip-title">Commit to GitHub every day</div>
+      <div class="tip-body">Even if you only changed 10 lines. A history of daily commits is proof of a developer who shows up. It matters more than any grade.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">03</div>
+      <div class="tip-title">Use your own real data</div>
+      <div class="tip-body">Add your actual UKZN timetable. Real data breaks things in real ways. Testing with dummy data hides half your bugs.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">04</div>
+      <div class="tip-title">One screen at a time</div>
+      <div class="tip-body">Don't start screen 3 until screen 2 fully works. Jumping between unfinished screens leads to a messy codebase and nothing that actually works.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">05</div>
+      <div class="tip-title">Break things. Fix them.</div>
+      <div class="tip-body">The error messages are the lessons. Don't copy a fix without reading it first. Understanding why something broke is worth more than the fix itself.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">06</div>
+      <div class="tip-title">This app is your hello world</div>
+      <div class="tip-body">Every great developer remembers their first real app. Six weeks from now you'll use this every day. That's what makes it real — not the code, but what it does for you.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-text">© 2025 Mziwonke Smanga Mbambo — Dev Journey</div>
+  <div class="footer-tag">Project 02 / Roadmap 2025</div>
+</footer>
+
+<script>
+function togglePhase(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+function toggleStep(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
